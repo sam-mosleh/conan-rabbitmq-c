@@ -76,7 +76,7 @@ class RabbitmqcConan(ConanFile):
         if self.settings.os == "Windows":
             self.cpp_info.libs = ["rabbitmq.4"]
         else:
-            self.cpp_info.libs = ["rabbitmq"]
+            self.cpp_info.libs = ["rabbitmq", "rt"]
 
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
