@@ -4,44 +4,80 @@ from conans import ConanFile, CMake, tools
 class RabbitmqcConan(ConanFile):
     name = "rabbitmq-c"
     version = "0.10.0"
-    license = "<Put the package license here>"
-    author = "<Put your name here> <And your email here>"
-    url = "<Package recipe repository url here, for issues about the package>"
-    description = "<Description of Rabbitmqc here>"
-    topics = ("<Put some tag here>", "<here>", "<and here>")
+    license = "https://github.com/alanxz/rabbitmq-c/blob/master/LICENSE-MIT"
+    author = "Sam Mosleh sam.mosleh@ut.ac.ir"
+    url = "https://github.com/sam-mosleh/conan-rabbitmq-c"
+    description = "RabbitMQ C client"
+    topics = ("rabbitmq-c", "rabbitmq")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False]}
-    default_options = {"shared": False}
+    options = {
+        "shared": [True, False],
+        "ssl": [True, False]
+    }
+    default_options = {
+        "shared": False,
+        "ssl": True
+    }
     generators = "cmake"
+    file_name = name + ".tar.gz"
+    unzipped_folder = "{}-{}".format(name, version)
+
+
+    def requirements(self):
+        if not self.options.ssl:
+            self.requires.add("OpenSSL/1.0.2m@conan/stable")
 
     def source(self):
-        self.run("git clone https://github.com/conan-io/hello.git")
-        # This small hack might be useful to guarantee proper /MT /MD linkage
-        # in MSVC if the packaged project doesn't have variables to set it
-        # properly
-        tools.replace_in_file("hello/CMakeLists.txt", "PROJECT(HelloWorld)",
-                              '''PROJECT(HelloWorld)
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()''')
+        download_url = "https://github.com/alanxz/rabbitmq-c/archive/v{}.tar.gz".format(self.version)
+        tools.download(download_url, self.file_name)
+        tools.unzip(self.file_name)
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(source_folder="hello")
-        cmake.build()
 
-        # Explicit way:
-        # self.run('cmake %s/hello %s'
-        #          % (self.source_folder, cmake.command_line))
-        # self.run("cmake --build . %s" % cmake.build_config)
+        if not self.options.ssl:
+            cmake.definitions['ENABLE_SSL_SUPPORT'] = "ON"
+            cmake.definitions['OPENSSL_ROOT_DIR'] = self.deps_cpp_info["OpenSSL"].rootpath
+        else:
+            cmake.definitions['ENABLE_SSL_SUPPORT'] = "OFF"
+
+        cmake.definitions['BUILD_EXAMPLES'] = "OFF"
+        cmake.definitions['BUILD_TESTS'] = "OFF"
+        cmake.definitions['BUILD_TOOLS'] = "OFF"
+        cmake.definitions['ENABLE_DOC'] = "OFF"
+
+        if self.options.shared:
+            cmake.definitions['BUILD_SHARED_LIBS'] = True
+            cmake.definitions['BUILD_STATIC_LIBS'] = False
+        else:
+            cmake.definitions['BUILD_STATIC_LIBS'] = True
+            cmake.definitions['BUILD_SHARED_LIBS'] = False
+
+        cmake.configure(source_folder=self.unzipped_folder)
+        cmake.build()
+        cmake.install()
 
     def package(self):
-        self.copy("*.h", dst="include", src="hello")
-        self.copy("*hello.lib", dst="lib", keep_path=False)
+        self.copy("*.h", dst="include", src=self.name)
+        self.copy("*.lib", dst="lib", keep_path=False)
         self.copy("*.dll", dst="bin", keep_path=False)
         self.copy("*.so", dst="lib", keep_path=False)
-        self.copy("*.dylib", dst="lib", keep_path=False)
+        self.copy("*.dylib*", dst="lib", keep_path=False)
         self.copy("*.a", dst="lib", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = ["hello"]
+        if self.settings.os == "Linux":
+            self.cpp_info.libs = ["rabbitmq", "rt"]
+        elif self.settings.os == "Windows":
+            self.cpp_info.libs = ["librabbitmq.4"]
+        else:
+            self.cpp_info.libs = ["rabbitmq"]
 
+        if self.settings.os == "Linux":
+            self.cpp_info.libs.append("pthread")
+        elif self.settings.os == "Windows":
+            self.cpp_info.libs.append("ws2_32.lib")
+
+            # Need to link with crypt32 as well for OpenSSL
+            if not self.options.ssl:
+                self.cpp_info.libs.append("crypt32")
