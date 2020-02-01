@@ -6,8 +6,12 @@ class RabbitmqcConan(ConanFile):
     version = "0.10.0"
     license = "https://github.com/alanxz/rabbitmq-c/blob/master/LICENSE-MIT"
     author = "Sam Mosleh sam.mosleh@ut.ac.ir"
+    default_user = "sam-mosleh"
     url = "https://github.com/sam-mosleh/conan-rabbitmq-c"
-    description = "RabbitMQ C client"
+
+    description = """This is a RabbitMQ C client package.
+    A fully featured, portable rabbitmq-c library."""
+
     topics = ("rabbitmq-c", "rabbitmq")
     settings = "os", "compiler", "build_type", "arch"
     options = {
@@ -22,6 +26,9 @@ class RabbitmqcConan(ConanFile):
     file_name = name + ".tar.gz"
     unzipped_folder = "{}-{}".format(name, version)
 
+    @property
+    def default_channel(self):
+        return "development"
 
     def requirements(self):
         if not self.options.ssl:
@@ -66,10 +73,8 @@ class RabbitmqcConan(ConanFile):
         self.copy("*.a", dst="lib", keep_path=False)
 
     def package_info(self):
-        if self.settings.os == "Linux":
-            self.cpp_info.libs = ["rabbitmq", "rt"]
-        elif self.settings.os == "Windows":
-            self.cpp_info.libs = ["librabbitmq.4"]
+        if self.settings.os == "Windows":
+            self.cpp_info.libs = ["rabbitmq.4"]
         else:
             self.cpp_info.libs = ["rabbitmq"]
 
