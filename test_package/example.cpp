@@ -1,3 +1,4 @@
+#include <iostream>
 #include <amqp.h>
 #include <amqp_tcp_socket.h>
 #ifdef SAC_SSL_SUPPORT_ENABLED
@@ -5,8 +6,8 @@
 #endif
 #include <amqp_framing.h>
 
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]) {
     amqp_connection_state_t conn = amqp_new_connection();
+    std::cout << "----------------------->Tests are done now.<-----------------------------" << std::endl;
     return 0;
 }

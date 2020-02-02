@@ -1,4 +1,4 @@
-from conans import ConanFile, CMake, tools
+from conans import CMake, ConanFile, tools
 
 
 class RabbitmqcConan(ConanFile):
@@ -14,14 +14,8 @@ class RabbitmqcConan(ConanFile):
 
     topics = ("rabbitmq-c", "rabbitmq")
     settings = "os", "compiler", "build_type", "arch"
-    options = {
-        "shared": [True, False],
-        "ssl": [True, False]
-    }
-    default_options = {
-        "shared": False,
-        "ssl": True
-    }
+    options = {"shared": [True, False], "ssl": [True, False]}
+    default_options = {"shared": False, "ssl": True}
     generators = "cmake"
     file_name = name + ".tar.gz"
     unzipped_folder = "{}-{}".format(name, version)
@@ -35,7 +29,8 @@ class RabbitmqcConan(ConanFile):
             self.requires.add("OpenSSL/1.0.2m@conan/stable")
 
     def source(self):
-        download_url = "https://github.com/alanxz/rabbitmq-c/archive/v{}.tar.gz".format(self.version)
+        download_url = "https://github.com/alanxz/rabbitmq-c/archive/v{}.tar.gz".format(
+            self.version)
         tools.download(download_url, self.file_name)
         tools.unzip(self.file_name)
 
@@ -44,7 +39,8 @@ class RabbitmqcConan(ConanFile):
 
         if not self.options.ssl:
             cmake.definitions['ENABLE_SSL_SUPPORT'] = "ON"
-            cmake.definitions['OPENSSL_ROOT_DIR'] = self.deps_cpp_info["OpenSSL"].rootpath
+            cmake.definitions['OPENSSL_ROOT_DIR'] = self.deps_cpp_info[
+                "OpenSSL"].rootpath
         else:
             cmake.definitions['ENABLE_SSL_SUPPORT'] = "OFF"
 
@@ -74,9 +70,12 @@ class RabbitmqcConan(ConanFile):
 
     def package_info(self):
         if self.settings.os == "Windows":
-            self.cpp_info.libs = ["rabbitmq.4"]
+            if self.options.shared:
+                self.cpp_info.libs = ["rabbitmq.4"]
+            else:
+                self.cpp_info.libs = ["librabbitmq.4"]
         else:
-            self.cpp_info.libs = ["librabbitmq"]
+            self.cpp_info.libs = ["rabbitmq"]
 
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
