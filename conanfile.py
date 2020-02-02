@@ -6,7 +6,6 @@ class RabbitmqcConan(ConanFile):
     version = "0.10.0"
     license = "https://github.com/alanxz/rabbitmq-c/blob/master/LICENSE-MIT"
     author = "Sam Mosleh sam.mosleh@ut.ac.ir"
-    default_user = "sam-mosleh"
     url = "https://github.com/sam-mosleh/conan-rabbitmq-c"
 
     description = """This is a RabbitMQ C client package.
@@ -20,12 +19,8 @@ class RabbitmqcConan(ConanFile):
     file_name = name + ".tar.gz"
     unzipped_folder = "{}-{}".format(name, version)
 
-    @property
-    def default_channel(self):
-        return "testing"
-
     def requirements(self):
-        if not self.options.ssl:
+        if self.options.ssl:
             self.requires.add("OpenSSL/1.0.2m@conan/stable")
 
     def source(self):
