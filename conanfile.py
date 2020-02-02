@@ -22,7 +22,7 @@ class RabbitmqcConan(ConanFile):
 
     @property
     def default_channel(self):
-        return "development"
+        return "testing"
 
     def requirements(self):
         if not self.options.ssl:
@@ -75,7 +75,7 @@ class RabbitmqcConan(ConanFile):
             else:
                 self.cpp_info.libs = ["librabbitmq.4"]
         else:
-            self.cpp_info.libs = ["rabbitmq"]
+            self.cpp_info.libs = ["rabbitmq", "rt"]
 
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
