@@ -19,9 +19,13 @@ class RabbitmqcConan(ConanFile):
     file_name = name + ".tar.gz"
     unzipped_folder = "{}-{}".format(name, version)
 
+    def configure(self):
+        if self.settings.compiler == "Visual Studio":
+            del self.settings.compiler.runtime
+
     def requirements(self):
         if self.options.ssl:
-            self.requires.add("OpenSSL/1.0.2m@conan/stable")
+            self.requires.add("OpenSSL/1.1.1c@conan/stable")
 
     def source(self):
         download_url = "https://github.com/alanxz/rabbitmq-c/archive/v{}.tar.gz".format(
