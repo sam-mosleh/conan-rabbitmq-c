@@ -1,5 +1,5 @@
 from conans import CMake, ConanFile, tools
-
+import os
 
 class RabbitmqcConan(ConanFile):
     name = "rabbitmq-c"
@@ -16,8 +16,10 @@ class RabbitmqcConan(ConanFile):
     options = {"shared": [True, False], "ssl": [True, False]}
     default_options = {"shared": False, "ssl": True}
     generators = "cmake"
+    exports_sources = "CMakeLists.txt"
     file_name = name + ".tar.gz"
     unzipped_folder = "{}-{}".format(name, version)
+    sources_folder = "sources"
 
     def configure(self):
         if self.settings.compiler == "Visual Studio":
@@ -32,6 +34,7 @@ class RabbitmqcConan(ConanFile):
             self.version)
         tools.download(download_url, self.file_name)
         tools.unzip(self.file_name)
+        os.rename(self.unzipped_folder, self.sources_folder)
 
     def build(self):
         cmake = CMake(self)
@@ -55,7 +58,7 @@ class RabbitmqcConan(ConanFile):
             cmake.definitions['BUILD_STATIC_LIBS'] = True
             cmake.definitions['BUILD_SHARED_LIBS'] = False
 
-        cmake.configure(source_folder=self.unzipped_folder)
+        cmake.configure()
         cmake.build()
         cmake.install()
 
