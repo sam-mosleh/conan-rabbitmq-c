@@ -1,7 +1,6 @@
 from conans import CMake, ConanFile, tools
 import os
 
-
 class RabbitmqcConan(ConanFile):
     name = "rabbitmq-c"
     version = "0.10.0"
@@ -15,7 +14,7 @@ class RabbitmqcConan(ConanFile):
     topics = ("rabbitmq-c", "rabbitmq", "message queue")
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "ssl": [True, False]}
-    default_options = {"shared": True, "ssl": True}
+    default_options = {"shared": False, "ssl": True}
     generators = "cmake"
     exports_sources = "CMakeLists.txt"
     file_name = name + ".tar.gz"
@@ -23,8 +22,6 @@ class RabbitmqcConan(ConanFile):
     sources_folder = "sources"
     github_user = "alanxz"
     github_repo = "rabbitmq-c"
-    # header_postfix = name
-    # headers_install_path = "include/" + header_postfix
 
     def configure(self):
         if self.settings.compiler == "Visual Studio":
@@ -33,6 +30,7 @@ class RabbitmqcConan(ConanFile):
     def requirements(self):
         if self.options.ssl:
             self.requires.add("openssl/1.1.1d")
+            self.options["openssl"].shared = self.options.shared
 
     def source(self):
         download_url = "https://github.com/{}/{}/archive/v{}.tar.gz".format(
@@ -46,8 +44,7 @@ class RabbitmqcConan(ConanFile):
 
         if self.options.ssl:
             cmake.definitions['ENABLE_SSL_SUPPORT'] = "ON"
-            cmake.definitions['OPENSSL_ROOT_DIR'] = self.deps_cpp_info[
-                "OpenSSL"].rootpath
+            cmake.definitions['OPENSSL_ROOT_DIR'] = self.deps_cpp_info["openssl"].rootpath
         else:
             cmake.definitions['ENABLE_SSL_SUPPORT'] = "OFF"
 
@@ -55,8 +52,10 @@ class RabbitmqcConan(ConanFile):
         cmake.definitions['BUILD_TESTS'] = "OFF"
         cmake.definitions['BUILD_TOOLS'] = "OFF"
         cmake.definitions['ENABLE_DOC'] = "OFF"
+
         cmake.definitions['BUILD_SHARED_LIBS'] = self.options.shared
         cmake.definitions['BUILD_STATIC_LIBS'] = not self.options.shared
+
         cmake.configure()
         cmake.build()
         cmake.install()
@@ -72,11 +71,8 @@ class RabbitmqcConan(ConanFile):
     def package_info(self):
         if self.settings.os == "Windows":
             if self.options.shared:
-                self.cpp_info.libs = ["rabbitmq.4", "ws2_32.lib"]
+                self.cpp_info.libs = ["rabbitmq.4"]
             else:
-                self.cpp_info.libs = ["librabbitmq.4", "ws2_32.lib"]
-            if not self.options.ssl:
-                self.cpp_info.libs.append("crypt32")
+                self.cpp_info.libs = ["librabbitmq.4"]
         else:
             self.cpp_info.libs = ["rabbitmq", "pthread"]
-
