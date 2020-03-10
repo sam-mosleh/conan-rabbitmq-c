@@ -24,13 +24,14 @@ class RabbitmqcConan(ConanFile):
     github_repo = "rabbitmq-c"
 
     def configure(self):
+        if self.options.ssl:
+            self.options["openssl"].shared = self.options.shared
         if self.settings.compiler == "Visual Studio":
             del self.settings.compiler.runtime
 
     def requirements(self):
         if self.options.ssl:
             self.requires.add("openssl/1.1.1d")
-            self.options["openssl"].shared = self.options.shared
 
     def source(self):
         download_url = "https://github.com/{}/{}/archive/v{}.tar.gz".format(
@@ -73,6 +74,6 @@ class RabbitmqcConan(ConanFile):
             if self.options.shared:
                 self.cpp_info.libs = ["rabbitmq.4"]
             else:
-                self.cpp_info.libs = ["librabbitmq.4"]
+                self.cpp_info.libs = ["librabbitmq.4", "crypt32", "ws2_32.lib.lib"]
         else:
             self.cpp_info.libs = ["rabbitmq", "pthread"]
