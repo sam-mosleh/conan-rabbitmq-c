@@ -8,6 +8,7 @@ env:
      - CONAN_STABLE_BRANCH_PATTERN: "release/*"
      - CONAN_UPLOAD_ONLY_WHEN_STABLE: 1
      - CONAN_TOTAL_PAGES: 2
+     - CONAN_LOG_RUN_TO_OUTPUT: 0
 
 linux: &linux
    os: linux
