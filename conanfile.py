@@ -1,5 +1,7 @@
-from conans import CMake, ConanFile, tools
 import os
+
+from conans import CMake, ConanFile, tools
+
 
 class RabbitmqcConan(ConanFile):
     name = "rabbitmq-c"
@@ -7,7 +9,7 @@ class RabbitmqcConan(ConanFile):
     license = "https://github.com/alanxz/rabbitmq-c/blob/master/LICENSE-MIT"
     author = "Sam Mosleh sam.mosleh@ut.ac.ir"
     url = "https://github.com/sam-mosleh/conan-rabbitmq-c"
-
+    homepage = "https://github.com/alanxz/rabbitmq-c"
     description = """This is a RabbitMQ C client package.
     A fully featured, portable rabbitmq-c library."""
 
@@ -17,11 +19,7 @@ class RabbitmqcConan(ConanFile):
     default_options = {"shared": False, "ssl": True}
     generators = "cmake"
     exports_sources = "CMakeLists.txt"
-    file_name = name + ".tar.gz"
-    unzipped_folder = "{}-{}".format(name, version)
     sources_folder = "sources"
-    github_user = "alanxz"
-    github_repo = "rabbitmq-c"
 
     def configure(self):
         if self.options.ssl:
@@ -34,25 +32,23 @@ class RabbitmqcConan(ConanFile):
             self.requires.add("openssl/1.1.1d")
 
     def source(self):
-        download_url = "https://github.com/{}/{}/archive/v{}.tar.gz".format(
-            self.github_user, self.github_repo, self.version)
-        tools.download(download_url, self.file_name)
-        tools.unzip(self.file_name)
-        os.rename(self.unzipped_folder, self.sources_folder)
+        download_url = "{}/archive/v{}.tar.gz".format(self.homepage,
+                                                      self.version)
+        tools.get(download_url)
+        os.rename("{}-{}".format(self.name, self.version), self.sources_folder)
 
     def build(self):
         cmake = CMake(self)
 
+        cmake.definitions['ENABLE_SSL_SUPPORT'] = self.options.ssl
         if self.options.ssl:
-            cmake.definitions['ENABLE_SSL_SUPPORT'] = "ON"
-            cmake.definitions['OPENSSL_ROOT_DIR'] = self.deps_cpp_info["openssl"].rootpath
-        else:
-            cmake.definitions['ENABLE_SSL_SUPPORT'] = "OFF"
+            cmake.definitions['OPENSSL_ROOT_DIR'] = self.deps_cpp_info[
+                "openssl"].rootpath
 
-        cmake.definitions['BUILD_EXAMPLES'] = "OFF"
-        cmake.definitions['BUILD_TESTS'] = "OFF"
-        cmake.definitions['BUILD_TOOLS'] = "OFF"
-        cmake.definitions['ENABLE_DOC'] = "OFF"
+        cmake.definitions['BUILD_EXAMPLES'] = False
+        cmake.definitions['BUILD_TESTS'] = False
+        cmake.definitions['BUILD_TOOLS'] = False
+        cmake.definitions['ENABLE_DOC'] = False
 
         cmake.definitions['BUILD_SHARED_LIBS'] = self.options.shared
         cmake.definitions['BUILD_STATIC_LIBS'] = not self.options.shared
@@ -74,6 +70,6 @@ class RabbitmqcConan(ConanFile):
             if self.options.shared:
                 self.cpp_info.libs = ["rabbitmq.4"]
             else:
-                self.cpp_info.libs = ["librabbitmq.4", "crypt32", "ws2_32.lib"]
+                self.cpp_info.libs = ["librabbitmq.4", "crypt32", "ws2_32"]
         else:
             self.cpp_info.libs = ["rabbitmq", "pthread"]
