@@ -74,6 +74,6 @@ class RabbitmqcConan(ConanFile):
             if self.options.shared:
                 self.cpp_info.libs = ["rabbitmq.4"]
             else:
-                self.cpp_info.libs = ["librabbitmq.4", "crypt32", "ws2_32.lib.lib"]
+                self.cpp_info.libs = ["librabbitmq.4", "crypt32", "ws2_32.lib"]
         else:
             self.cpp_info.libs = ["rabbitmq", "pthread"]
