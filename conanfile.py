@@ -22,8 +22,7 @@ class RabbitmqcConan(ConanFile):
     sources_folder = "sources"
 
     def configure(self):
-        if self.options.ssl:
-            self.options["openssl"].shared = self.options.shared
+        self.options["openssl"].shared = self.options.shared
         if self.settings.compiler == "Visual Studio":
             del self.settings.compiler.runtime
 
