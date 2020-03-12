@@ -23,8 +23,6 @@ class RabbitmqcConan(ConanFile):
 
     def configure(self):
         self.options["openssl"].shared = self.options.shared
-        if self.settings.compiler == "Visual Studio":
-            del self.settings.compiler.runtime
 
     def requirements(self):
         if self.options.ssl:
