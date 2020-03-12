@@ -4,11 +4,9 @@ project(PackageTest CXX)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
-add_executable(example example.cpp)
-target_link_libraries(example ${CONAN_LIBS})
+add_executable(${PROJECT_NAME} test.cpp)
+target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS})
 
-# CTest is a testing tool that can be used to test your project.
-# enable_testing()
-# add_test(NAME example
-#          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-#          COMMAND example)
+if(WITH_SSL)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE "WITH_SSL")
+endif()
