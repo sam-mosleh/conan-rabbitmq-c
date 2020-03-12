@@ -22,7 +22,8 @@ class RabbitmqcConan(ConanFile):
     sources_folder = "sources"
 
     def configure(self):
-        self.options["openssl"].shared = self.options.shared
+        if self.options.ssl:
+            self.options["openssl"].shared = self.options.shared
 
     def requirements(self):
         if self.options.ssl:
