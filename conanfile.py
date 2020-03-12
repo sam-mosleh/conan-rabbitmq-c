@@ -41,10 +41,6 @@ class RabbitmqcConan(ConanFile):
         cmake = CMake(self)
 
         cmake.definitions['ENABLE_SSL_SUPPORT'] = self.options.ssl
-        if self.options.ssl:
-            cmake.definitions['OPENSSL_ROOT_DIR'] = self.deps_cpp_info[
-                "openssl"].rootpath
-
         cmake.definitions['BUILD_EXAMPLES'] = False
         cmake.definitions['BUILD_TESTS'] = False
         cmake.definitions['BUILD_TOOLS'] = False
@@ -67,9 +63,10 @@ class RabbitmqcConan(ConanFile):
 
     def package_info(self):
         if self.settings.os == "Windows":
-            if self.options.shared:
-                self.cpp_info.libs = ["rabbitmq.4"]
-            else:
-                self.cpp_info.libs = ["librabbitmq.4", "crypt32", "ws2_32"]
+            self.cpp_info.libs = [
+                "rabbitmq.4" if self.options.shared else "librabbitmq.4"
+            ]
+            self.cpp_info.system_libs.extend(["crypt32", "ws2_32"])
         else:
-            self.cpp_info.libs = ["rabbitmq", "pthread"]
+            self.cpp_info.libs = ["rabbitmq"]
+            self.cpp_info.system_libs.append("pthread")
