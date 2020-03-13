@@ -5,5 +5,6 @@ if __name__ == "__main__":
                                  upload_dependencies="all")
     builder.add_common_builds(shared_option_name="rabbitmq-c:shared",
                               pure_c=False,
+                              visual_runtimes=["MD"],
                               build_all_options_values=["rabbitmq-c:ssl"])
     builder.run()
