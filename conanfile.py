@@ -20,6 +20,7 @@ class RabbitmqcConan(ConanFile):
     generators = "cmake"
     exports_sources = "CMakeLists.txt"
     sources_folder = "sources"
+    _cmake = None
 
     def configure(self):
         if self.options.ssl:
@@ -35,23 +36,28 @@ class RabbitmqcConan(ConanFile):
         tools.get(download_url)
         os.rename("{}-{}".format(self.name, self.version), self.sources_folder)
 
+    def _configure_cmake(self):
+        if self._cmake is not None:
+            return self._cmake
+        self._cmake = CMake(self)
+        self._cmake.definitions['ENABLE_SSL_SUPPORT'] = self.options.ssl
+        self._cmake.definitions['BUILD_EXAMPLES'] = False
+        self._cmake.definitions['BUILD_TESTS'] = False
+        self._cmake.definitions['BUILD_TOOLS'] = False
+        self._cmake.definitions['ENABLE_DOC'] = False
+
+        self._cmake.definitions['BUILD_SHARED_LIBS'] = self.options.shared
+        self._cmake.definitions['BUILD_STATIC_LIBS'] = not self.options.shared
+        self._cmake.configure()
+        return self._cmake
+
     def build(self):
-        cmake = CMake(self)
-
-        cmake.definitions['ENABLE_SSL_SUPPORT'] = self.options.ssl
-        cmake.definitions['BUILD_EXAMPLES'] = False
-        cmake.definitions['BUILD_TESTS'] = False
-        cmake.definitions['BUILD_TOOLS'] = False
-        cmake.definitions['ENABLE_DOC'] = False
-
-        cmake.definitions['BUILD_SHARED_LIBS'] = self.options.shared
-        cmake.definitions['BUILD_STATIC_LIBS'] = not self.options.shared
-
-        cmake.configure()
+        cmake = self._configure_cmake()
         cmake.build()
-        cmake.install()
 
     def package(self):
+        cmake = self._configure_cmake()
+        cmake.install()
         self.copy("*.h", dst="include", src=self.name)
         self.copy("*.lib", dst="lib", keep_path=False)
         self.copy("*.dll", dst="bin", keep_path=False)
@@ -68,3 +74,5 @@ class RabbitmqcConan(ConanFile):
         else:
             self.cpp_info.libs = ["rabbitmq"]
             self.cpp_info.system_libs.append("pthread")
+        if not self.options.shared:
+            self.cpp_info.defines.append("AMQP_STATIC")
