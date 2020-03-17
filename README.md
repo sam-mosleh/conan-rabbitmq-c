@@ -2,7 +2,7 @@
 
 Conan C/C++ package for [RabbitMQ-C](https://github.com/alanxz/rabbitmq-c) library.
 
-| Bintray | Travis | Appveyor |
+| Bintray | Linux | Windows |
 |---------|--------|----------|
 |[ ![Download](https://api.bintray.com/packages/sam-mosleh/conan/rabbitmq-c:mosleh/images/download.svg?version=0.10.0:stable) ](https://bintray.com/sam-mosleh/conan/rabbitmq-c:mosleh/0.10.0:stable/link)|[![Build Status](https://travis-ci.com/sam-mosleh/conan-rabbitmq-c.svg?branch=release%2F0.10.0)](https://travis-ci.com/sam-mosleh/conan-rabbitmq-c)|[![Build status](https://ci.appveyor.com/api/projects/status/r30veyik8o24yyev/branch/release/0.10.0?svg=true)](https://ci.appveyor.com/project/sam-mosleh/conan-rabbitmq-c/branch/release/0.10.0)|
 
