@@ -27,8 +27,8 @@ conan install rabbitmq-c/0.10.0@mosleh/stable
 
 Key | Default Value | Description
 --- | --- | :--
-`shared` | true | Use dynamic linkage
-`ssl` | true | Enables SSL for the package
+`shared` | False | Use dynamic linkage
+`ssl` | True | Enables SSL for the package
 
 Read about [options](https://docs.conan.io/en/latest/creating_packages/getting_started.html?highlight=options#settings-vs-options).
 
